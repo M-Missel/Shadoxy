@@ -2,7 +2,10 @@ package com.shadoxy.config;
 
 import com.shadoxy.config.sections.AnonymizerConfig;
 import com.shadoxy.config.sections.FilterConfig;
-import com.shadoxy.logging.ConfigLoaderException;
+import com.shadoxy.config.sections.LoggingConfig;
+import com.shadoxy.config.sections.MitmConfig;
+import com.shadoxy.config.sections.ServerConfig;
+import com.shadoxy.config.sections.UpstreamConfig;
 import com.shadoxy.logging.ShadoxyLogger;
 
 import java.io.FileInputStream;
@@ -15,6 +18,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+/**
+ * Implements the loader for the configuration for the proxy server.
+ *
+ * @author mmissel
+ * @version 1.2
+ */
 public final class ShadoxyConfigLoader {
     private static final ShadoxyLogger logger = ShadoxyLogger.getLogger(ShadoxyConfigLoader.class);
 
@@ -27,10 +36,19 @@ public final class ShadoxyConfigLoader {
         this.properties = properties;
     }
 
+    /**
+     * @return
+     * @throws ConfigLoaderException
+     */
     public static ShadoxyConfig load() throws ConfigLoaderException {
         return load(DefaultConfig.DEFAULT_APPLICATION_PATH);
     }
 
+    /**
+     * @param path
+     * @return
+     * @throws ConfigLoaderException
+     */
     public static ShadoxyConfig load(String path) throws ConfigLoaderException {
         logger.info(LOGGER_START + path);
 
@@ -50,29 +68,74 @@ public final class ShadoxyConfigLoader {
 
         logger.info(LOGGER_SUCCESSFUL);
 
-        return new ShadoxyConfig();
+        return config;
     }
 
-    private ShadoxyConfig mapToConfig(Properties properties) {
+    private ShadoxyConfig mapToConfig() {
         ShadoxyConfig config = new ShadoxyConfig();
+
         config.setAnonymizerConfig(mapAnonymizer());
+        config.setFilterConfig(mapFilter());
+        config.setLoggingConfig(mapLogging());
+        config.setMitmConfig(mapMitm());
+        config.setServerConfig(mapServer());
+        config.setUpstreamConfig(mapUpstream());
+
+        return config;
     }
 
     private AnonymizerConfig mapAnonymizer() {
         AnonymizerConfig config = new AnonymizerConfig();
 
-        config.setStripHeader(getList("anonymizer.strip-headers"));
-        config.setRotateUserAgent(getBool("anonymizer.rotate-user-agent", false));
-        config.setBlockCookies(getBool("anonymizer.block-cookies", false));
+        config.setStripHeader(getList(DefaultConfig.STRIP_HEADER));
+        config.setRotateUserAgent(getBool(DefaultConfig.ROTATE_USER_AGENT, false));
+        config.setBlockCookies(getBool(DefaultConfig.BLOCK_COOKIES, false));
 
         return config;
     }
 
-    private FilterConfig mapFilter(){
+    private FilterConfig mapFilter() {
         FilterConfig config = new FilterConfig();
 
-        config.setEnabled(getBool("filter.enabled", false));
-        config.setBlockListPath(getString("filter.blocklist-path", DefaultConfig.DEFAULT_BLOCKLIST_PATH));
+        config.setEnabled(getBool(DefaultConfig.FILTER_ENABLED, false));
+        config.setBlockListPath(getString(DefaultConfig.FILTER_BLOCKLIST_PATH, DefaultConfig.DEFAULT_BLOCKLIST_PATH));
+
+        return config;
+    }
+
+    private LoggingConfig mapLogging() {
+        LoggingConfig config = new LoggingConfig();
+
+        config.setLogLevel(getString(DefaultConfig.LOGGING_LEVEL, DefaultConfig.LOGGING_LEVEL_DEFAULT));
+
+        return config;
+    }
+
+    private MitmConfig mapMitm() {
+        MitmConfig config = new MitmConfig();
+
+        config.setIsEnabled(getBool(DefaultConfig.MITM_ENABLED, false));
+        config.setCaCertPath(getString(DefaultConfig.MITM_CA_CERT_PATH, ""));
+        config.setCaKeyPath(getString(DefaultConfig.MITM_CA_KEY_PATH, ""));
+
+        return config;
+    }
+
+    private ServerConfig mapServer() {
+        ServerConfig config = new ServerConfig();
+
+        config.setServerPort(getInt(DefaultConfig.SERVER_PORT, 8080));
+        config.setThreads(getInt(DefaultConfig.SERVER_THREADS, 0));
+
+        return config;
+    }
+
+    private UpstreamConfig mapUpstream() {
+        UpstreamConfig config = new UpstreamConfig();
+
+        config.setType(getString(DefaultConfig.UPSTREAM_TYPE, "NONE"));
+        config.setHost(getString(DefaultConfig.UPSTREAM_HOST, ""));
+        config.setPort(getInt(DefaultConfig.UPSTREAM_PORT, 0));
 
         return config;
     }
@@ -96,23 +159,27 @@ public final class ShadoxyConfigLoader {
 
     private List<String> getList(String key) {
         String value = properties.getProperty(key, "");
-        if (value.isBlank()) return new ArrayList<>();
+
+        if (value.isBlank()){
+            return new ArrayList<>();
+        }
+
         return Arrays.stream(value.split(","))
                 .map(String::trim)
                 .filter(st -> !st.isEmpty())
                 .collect(Collectors.toList());
     }
 
-    private static void validate(ShadoxyConfig config) {
+    private static void validate(ShadoxyConfig config) throws ConfigLoaderException {
         if (config == null) {
-            throw new RuntimeException("Konfigurationsdatei ist leer");
+            throw new ConfigLoaderException("Konfigurationsdatei ist leer");
         }
-        if (config.getServer().getPort() < 1 || config.getServer().getPort() > 65535) {
-            throw new RuntimeException("Ungültiger Port: " + config.getServer().getPort());
+        if (config.getServerConfig().getServerPort() < 1 || config.getServerConfig().getServerPort() > 65535) {
+            throw new ConfigLoaderException("Ungültiger Port: " + config.getServerConfig().getServerPort());
         }
-        if (config.getUpstream().getType() == null) {
-            throw new RuntimeException("Upstream-Typ darf nicht null sein");
+        if (config.getUpstreamConfig().getType() == null) {
+            throw new ConfigLoaderException("Upstream-Typ darf nicht null sein");
         }
-        logger.debug("Validierung erfolgreich — Port: " + config.getServer().getPort());
+        logger.debug("Validierung erfolgreich — Port: " + config.getServerConfig().getServerPort());
     }
 }
