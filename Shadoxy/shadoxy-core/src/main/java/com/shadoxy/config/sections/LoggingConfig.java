@@ -6,4 +6,8 @@ public class LoggingConfig {
     public void setLogLevel(String logLevel) {
         this.logLevel = logLevel;
     }
+
+    public String getLogLevel(){
+        return this.logLevel;
+    }
 }

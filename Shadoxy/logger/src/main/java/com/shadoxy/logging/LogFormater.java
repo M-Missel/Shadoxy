@@ -22,11 +22,16 @@ public class LogFormater {
      * @return formated string
      */
     public String format(ShadoxyLogLevel logLevel, String loggerName, String message) {
-        return String.format(STRING_FORMAT,
-                LocalDateTime.now().format(FORMATTER),
-                Thread.currentThread().getName(),
-                logLevel,
-                loggerName,
-                message);
-    }
+        StringBuilder stringBuilder = new StringBuilder();
+
+        return stringBuilder.append(LocalDateTime.now().format(FORMATTER))
+                .append("[")
+                .append(Thread.currentThread().getName())
+                .append("] ")
+                .append(logLevel)
+                .append(" ")
+                .append(loggerName)
+                .append(" - ")
+                .append(message)
+                .toString();
 }

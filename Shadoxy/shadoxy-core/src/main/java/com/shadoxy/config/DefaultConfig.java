@@ -1,7 +1,8 @@
 package com.shadoxy.config;
 
-public class DefaultConfig {
-    public static final String DEFAULT_APPLICATION_PATH = "configs/application.yaml";
+public final class DefaultConfig {
+
+    public static final String DEFAULT_APPLICATION_PATH = "configs/application.properties";
 
     public static final String DEFAULT_BLOCKLIST_PATH = "config/blocklist.txt";
 
@@ -26,7 +27,13 @@ public class DefaultConfig {
     public static final String UPSTREAM_TYPE = "upstream.type";
     public static final String UPSTREAM_HOST = "upstream.host";
     public static final String UPSTREAM_PORT = "upstream.port";
+    public static final String UPSTREAM_DEFAULT_VALUE = "NONE";
+
     //------------------------End-Key-Values----------------------
 
+    public static final String DEFAULT_VALUE = "";
+    public static final String DEFAULT_REGEX = ";";
 
+    private DefaultConfig() {
+    }
 }

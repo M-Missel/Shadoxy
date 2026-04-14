@@ -1,5 +1,9 @@
 package com.shadoxy;
 
+import com.shadoxy.config.ConfigLoaderException;
+import com.shadoxy.config.ShadoxyConfig;
+import com.shadoxy.config.ShadoxyConfigLoader;
+import com.shadoxy.logging.ShadoxyLogLevel;
 import com.shadoxy.logging.ShadoxyLogger;
 
 /**
@@ -23,5 +27,19 @@ public final class ShadoxyApplication {
     public static void main(String[] args) {
         logger.info(START_LOGGER);
 
+        ShadoxyConfig config;
+
+        try{
+            config = ShadoxyConfigLoader.load();
+        } catch (ConfigLoaderException e) {
+            logger.error("Failed to load the config", e);
+            return;
+        }
+
+        ShadoxyLogger.setLogLevel(
+                ShadoxyLogLevel.valueOf(config.getLoggingConfig().getLogLevel().toUpperCase())
+        );
+
+        logger.info(CONFIG_LOADED + config.getServerConfig().getServerPort());
     }
 }

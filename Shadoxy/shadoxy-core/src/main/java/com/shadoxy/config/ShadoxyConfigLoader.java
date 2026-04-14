@@ -115,8 +115,8 @@ public final class ShadoxyConfigLoader {
         MitmConfig config = new MitmConfig();
 
         config.setIsEnabled(getBool(DefaultConfig.MITM_ENABLED, false));
-        config.setCaCertPath(getString(DefaultConfig.MITM_CA_CERT_PATH, ""));
-        config.setCaKeyPath(getString(DefaultConfig.MITM_CA_KEY_PATH, ""));
+        config.setCaCertPath(getString(DefaultConfig.MITM_CA_CERT_PATH, DefaultConfig.DEFAULT_VALUE));
+        config.setCaKeyPath(getString(DefaultConfig.MITM_CA_KEY_PATH, DefaultConfig.DEFAULT_VALUE));
 
         return config;
     }
@@ -133,8 +133,8 @@ public final class ShadoxyConfigLoader {
     private UpstreamConfig mapUpstream() {
         UpstreamConfig config = new UpstreamConfig();
 
-        config.setType(getString(DefaultConfig.UPSTREAM_TYPE, "NONE"));
-        config.setHost(getString(DefaultConfig.UPSTREAM_HOST, ""));
+        config.setType(getString(DefaultConfig.UPSTREAM_TYPE, DefaultConfig.UPSTREAM_DEFAULT_VALUE));
+        config.setHost(getString(DefaultConfig.UPSTREAM_HOST, DefaultConfig.DEFAULT_VALUE));
         config.setPort(getInt(DefaultConfig.UPSTREAM_PORT, 0));
 
         return config;
@@ -158,13 +158,13 @@ public final class ShadoxyConfigLoader {
     }
 
     private List<String> getList(String key) {
-        String value = properties.getProperty(key, "");
+        String value = properties.getProperty(key, DefaultConfig.DEFAULT_VALUE);
 
         if (value.isBlank()){
             return new ArrayList<>();
         }
 
-        return Arrays.stream(value.split(","))
+        return Arrays.stream(value.split(DefaultConfig.DEFAULT_REGEX))
                 .map(String::trim)
                 .filter(st -> !st.isEmpty())
                 .collect(Collectors.toList());
