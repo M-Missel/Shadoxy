@@ -1,5 +1,7 @@
 package com.shadoxy.logging;
 
+import java.io.IOException;
+
 /**
  * Implements the main logic behind the logger.
  *
@@ -9,7 +11,7 @@ package com.shadoxy.logging;
 public final class ShadoxyLogger {
     private static volatile ShadoxyLogLevel logLevel = ShadoxyLogLevel.INFO;
     private static final LogFormater FORMATER = new LogFormater();
-    private static final LogWriter WRITER = new ConsoleWriter();
+    private static LogWriter logWriter = new ConsoleWriter();
 
     private final String name;
 
@@ -29,14 +31,25 @@ public final class ShadoxyLogger {
 
     /**
      * Set the log level to a new value.
+     *
      * @param logLevel new log level
      */
     public static void setLogLevel(ShadoxyLogLevel logLevel) {
         ShadoxyLogger.logLevel = logLevel;
     }
 
+    public static void setWriter(String type) throws IOException {
+        WriterType writerType = WriterType.valueOf(type);
+
+        switch (writerType){
+            case CONSOLE -> logWriter = new ConsoleWriter();
+            case FILE -> logWriter = new LogFileWriter();
+        }
+    }
+
     /**
      * write the info message.
+     *
      * @param message current info message
      */
     public void info(String message) {
@@ -45,6 +58,7 @@ public final class ShadoxyLogger {
 
     /**
      * write the debug message.
+     *
      * @param message current debug message
      */
     public void debug(String message) {
@@ -53,6 +67,7 @@ public final class ShadoxyLogger {
 
     /**
      * write the warn message.
+     *
      * @param message current warn message
      */
     public void warn(String message) {
@@ -61,6 +76,7 @@ public final class ShadoxyLogger {
 
     /**
      * write the error message.
+     *
      * @param message current error message
      */
     public void error(String message) {
@@ -69,7 +85,8 @@ public final class ShadoxyLogger {
 
     /**
      * write the error message.
-     * @param message current error message
+     *
+     * @param message   current error message
      * @param throwable cause of the error
      */
     public void error(String message, Throwable throwable) {
@@ -82,6 +99,6 @@ public final class ShadoxyLogger {
         }
 
         String formatted = FORMATER.format(level, name, message);
-        WRITER.write(formatted, level, throwable);
+        logWriter.write(formatted, level, throwable);
     }
 }

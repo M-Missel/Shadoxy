@@ -34,4 +34,5 @@ public class LogFormater {
                 .append(" - ")
                 .append(message)
                 .toString();
+    }
 }

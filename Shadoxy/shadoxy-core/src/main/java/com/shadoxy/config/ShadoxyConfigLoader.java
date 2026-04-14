@@ -107,6 +107,7 @@ public final class ShadoxyConfigLoader {
         LoggingConfig config = new LoggingConfig();
 
         config.setLogLevel(getString(DefaultConfig.LOGGING_LEVEL, DefaultConfig.LOGGING_LEVEL_DEFAULT));
+        config.setLogType(getString(DefaultConfig.LOGGING_TYPE, DefaultConfig.LOGGING_TYPE_DEFAULT));
 
         return config;
     }

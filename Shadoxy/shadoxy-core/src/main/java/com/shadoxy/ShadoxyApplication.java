@@ -1,10 +1,15 @@
 package com.shadoxy;
 
 import com.shadoxy.config.ConfigLoaderException;
+import com.shadoxy.config.DefaultConfig;
 import com.shadoxy.config.ShadoxyConfig;
 import com.shadoxy.config.ShadoxyConfigLoader;
+import com.shadoxy.config.sections.LoggingConfig;
 import com.shadoxy.logging.ShadoxyLogLevel;
 import com.shadoxy.logging.ShadoxyLogger;
+import com.shadoxy.server.ShadoxyServer;
+
+import java.io.IOException;
 
 /**
  * Entry point for the proxy server.
@@ -22,24 +27,40 @@ public final class ShadoxyApplication {
 
     /**
      * Entry point of the application.
+     *
      * @param args No arguments are parsed.
+     * @throws InterruptedException l
+     * @throws IOException          ö
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException, IOException {
         logger.info(START_LOGGER);
 
         ShadoxyConfig config;
 
-        try{
+        try {
             config = ShadoxyConfigLoader.load();
         } catch (ConfigLoaderException e) {
             logger.error("Failed to load the config", e);
             return;
         }
 
-        ShadoxyLogger.setLogLevel(
-                ShadoxyLogLevel.valueOf(config.getLoggingConfig().getLogLevel().toUpperCase())
-        );
+        configureLogging(config.getLoggingConfig());
 
         logger.info(CONFIG_LOADED + config.getServerConfig().getServerPort());
+
+        ShadoxyServer server = new ShadoxyServer(config);
+        server.start();
+    }
+
+    private static void configureLogging(LoggingConfig config) throws IOException {
+        ShadoxyLogger.setLogLevel(
+                ShadoxyLogLevel.valueOf(config.getLogLevel().toUpperCase())
+        );
+
+        String logType = config.getLogType();
+
+        if (!logType.equals(DefaultConfig.LOGGING_TYPE)) {
+            ShadoxyLogger.setWriter(logType);
+        }
     }
 }
