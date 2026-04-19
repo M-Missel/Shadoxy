@@ -1,23 +1,32 @@
 package com.shadoxy.logging;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 public class LogFileWriter implements LogWriter {
     private String savePath = "logs/shadoxy.log";
+    private final long maxSize;
 
     private BufferedWriter writer;
 
     public LogFileWriter() throws IOException {
         this.writer = new BufferedWriter(new FileWriter(savePath, true));
+        maxSize = 10;
     }
 
-    public LogFileWriter(String logPath) throws IOException {
+    public LogFileWriter(String logPath, int maxSize) throws IOException {
         this.savePath = logPath;
         this.writer = new BufferedWriter(new FileWriter(savePath, true));
+        this.maxSize = maxSize;
     }
 
     /**
@@ -28,12 +37,15 @@ public class LogFileWriter implements LogWriter {
      * @param throwable possible cause of the message
      */
     @Override
-    public void write(String message, ShadoxyLogLevel logLevel, Throwable throwable) {
-        try{
+    public void write(String message, ShadoxyLogLevel logLevel, Throwable throwable) throws IOException {
+        File currentFile = Path.of(savePath).normalize().toFile();
+        rotateFile(currentFile);
+
+        try {
             writer.write(message);
             writer.newLine();
 
-            if(throwable != null){
+            if (throwable != null) {
                 stackTraceToString(throwable);
                 writer.newLine();
             }
@@ -49,7 +61,7 @@ public class LogFileWriter implements LogWriter {
      */
     @Override
     public void close() {
-        try{
+        try {
             writer.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -60,5 +72,28 @@ public class LogFileWriter implements LogWriter {
         StringWriter sw = new StringWriter();
         throwable.printStackTrace(new PrintWriter(sw));
         return sw.toString();
+    }
+
+    private void rotateFile(File logFile) throws IOException {
+        Path path = Path.of(savePath);
+        BasicFileAttributes basicFileAttributes = Files.readAttributes(path, BasicFileAttributes.class);
+
+        LocalDate localDate = basicFileAttributes.creationTime()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        long sizeInMB = Files.size(logFile.toPath()) / (1024 * 1024);
+
+        if (!localDate.isEqual(LocalDate.now()) || sizeInMB >= maxSize) {
+            writer.close();
+
+            File rotated = new File("logs/shadoxy-" + localDate + ".log");
+            if (!logFile.renameTo(rotated)) {
+                throw new IOException("Failed to rotate log file to: " + rotated.getName());
+            }
+
+            writer = new BufferedWriter(new FileWriter(savePath, true));
+        }
     }
 }

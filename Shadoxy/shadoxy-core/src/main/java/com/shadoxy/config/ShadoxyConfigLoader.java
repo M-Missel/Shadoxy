@@ -40,7 +40,7 @@ public final class ShadoxyConfigLoader {
      * @return
      * @throws ConfigLoaderException
      */
-    public static ShadoxyConfig load() throws ConfigLoaderException {
+    public static ShadoxyConfig load() throws ConfigLoaderException, IOException {
         return load(DefaultConfig.DEFAULT_APPLICATION_PATH);
     }
 
@@ -49,7 +49,7 @@ public final class ShadoxyConfigLoader {
      * @return
      * @throws ConfigLoaderException
      */
-    public static ShadoxyConfig load(String path) throws ConfigLoaderException {
+    public static ShadoxyConfig load(String path) throws ConfigLoaderException, IOException {
         logger.info(LOGGER_START + path);
 
         Properties props = new Properties();
@@ -71,7 +71,7 @@ public final class ShadoxyConfigLoader {
         return config;
     }
 
-    private ShadoxyConfig mapToConfig() {
+    private ShadoxyConfig mapToConfig() throws IOException {
         ShadoxyConfig config = new ShadoxyConfig();
 
         config.setAnonymizerConfig(mapAnonymizer());
@@ -103,11 +103,13 @@ public final class ShadoxyConfigLoader {
         return config;
     }
 
-    private LoggingConfig mapLogging() {
+    private LoggingConfig mapLogging() throws IOException {
         LoggingConfig config = new LoggingConfig();
 
         config.setLogLevel(getString(DefaultConfig.LOGGING_LEVEL, DefaultConfig.LOGGING_LEVEL_DEFAULT));
         config.setLogType(getString(DefaultConfig.LOGGING_TYPE, DefaultConfig.LOGGING_TYPE_DEFAULT));
+        config.setMaxSize(getInt(DefaultConfig.LOGGING_MAX_SIZE, DefaultConfig.LOGGING_DEFAULT_SIZE));
+        config.setMaxDuration(getInt(DefaultConfig.LOGGING_MAX_DURATION, DefaultConfig.LOGGING_DEFAULT_MAX_DURATION));
 
         return config;
     }
@@ -122,7 +124,7 @@ public final class ShadoxyConfigLoader {
         return config;
     }
 
-    private ServerConfig mapServer() {
+    private ServerConfig mapServer() throws IOException {
         ServerConfig config = new ServerConfig();
 
         config.setServerPort(getInt(DefaultConfig.SERVER_PORT, 8080));
@@ -131,7 +133,7 @@ public final class ShadoxyConfigLoader {
         return config;
     }
 
-    private UpstreamConfig mapUpstream() {
+    private UpstreamConfig mapUpstream() throws IOException {
         UpstreamConfig config = new UpstreamConfig();
 
         config.setType(getString(DefaultConfig.UPSTREAM_TYPE, DefaultConfig.UPSTREAM_DEFAULT_VALUE));
@@ -145,7 +147,7 @@ public final class ShadoxyConfigLoader {
         return properties.getProperty(key, defaultValue);
     }
 
-    private int getInt(String key, int defaultValue) {
+    private int getInt(String key, int defaultValue) throws IOException {
         try {
             return Integer.parseInt(properties.getProperty(key, String.valueOf(defaultValue)));
         } catch (NumberFormatException e) {
@@ -171,7 +173,7 @@ public final class ShadoxyConfigLoader {
                 .collect(Collectors.toList());
     }
 
-    private static void validate(ShadoxyConfig config) throws ConfigLoaderException {
+    private static void validate(ShadoxyConfig config) throws ConfigLoaderException, IOException {
         if (config == null) {
             throw new ConfigLoaderException("Konfigurationsdatei ist leer");
         }

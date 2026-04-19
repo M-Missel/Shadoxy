@@ -1,5 +1,7 @@
 package com.shadoxy.logging;
 
+import java.io.IOException;
+
 /**
  * Implements all the needed methods for the next steps.
  *
@@ -14,7 +16,7 @@ public interface LogWriter {
      * @param logLevel  current log level
      * @param throwable possible cause of the message
      */
-    void write(String message, ShadoxyLogLevel logLevel, Throwable throwable);
+    void write(String message, ShadoxyLogLevel logLevel, Throwable throwable) throws IOException;
 
     /**
      * Closes the writer

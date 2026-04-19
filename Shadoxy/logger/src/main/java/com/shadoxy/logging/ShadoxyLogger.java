@@ -41,9 +41,12 @@ public final class ShadoxyLogger {
     public static void setWriter(String type) throws IOException {
         WriterType writerType = WriterType.valueOf(type);
 
-        switch (writerType){
+        switch (writerType) {
             case CONSOLE -> logWriter = new ConsoleWriter();
             case FILE -> logWriter = new LogFileWriter();
+            case COMBINATION -> logWriter = new CombinationWriter(
+                    new ConsoleWriter(),
+                    new LogFileWriter());
         }
     }
 
@@ -52,7 +55,7 @@ public final class ShadoxyLogger {
      *
      * @param message current info message
      */
-    public void info(String message) {
+    public void info(String message) throws IOException {
         writeLog(ShadoxyLogLevel.INFO, message, null);
     }
 
@@ -61,7 +64,7 @@ public final class ShadoxyLogger {
      *
      * @param message current debug message
      */
-    public void debug(String message) {
+    public void debug(String message) throws IOException {
         writeLog(ShadoxyLogLevel.DEBUG, message, null);
     }
 
@@ -70,7 +73,7 @@ public final class ShadoxyLogger {
      *
      * @param message current warn message
      */
-    public void warn(String message) {
+    public void warn(String message) throws IOException {
         writeLog(ShadoxyLogLevel.WARN, message, null);
     }
 
@@ -79,7 +82,7 @@ public final class ShadoxyLogger {
      *
      * @param message current error message
      */
-    public void error(String message) {
+    public void error(String message) throws IOException {
         writeLog(ShadoxyLogLevel.ERROR, message, null);
     }
 
@@ -89,11 +92,11 @@ public final class ShadoxyLogger {
      * @param message   current error message
      * @param throwable cause of the error
      */
-    public void error(String message, Throwable throwable) {
+    public void error(String message, Throwable throwable) throws IOException {
         writeLog(ShadoxyLogLevel.ERROR, message, throwable);
     }
 
-    private void writeLog(ShadoxyLogLevel level, String message, Throwable throwable) {
+    private void writeLog(ShadoxyLogLevel level, String message, Throwable throwable) throws IOException {
         if (!level.isEnabledFor(logLevel)) {
             return;
         }

@@ -18,6 +18,10 @@ public final class DefaultConfig {
     public static final String LOGGING_LEVEL_DEFAULT = "INFO";
     public static final String LOGGING_TYPE = "logging.type";
     public static final String LOGGING_TYPE_DEFAULT = "CONSOLE";
+    public static final String LOGGING_MAX_SIZE = "logging.max_size";
+    public static final int LOGGING_DEFAULT_SIZE = 1024;
+    public static final String LOGGING_MAX_DURATION = "logging.max_duration";
+    public static final int LOGGING_DEFAULT_MAX_DURATION = 1;
 
     public static final String MITM_ENABLED = "mitm.enabled";
     public static final String MITM_CA_CERT_PATH = "mitm.ca-cert-path";
