@@ -37,16 +37,15 @@ public class LogFileWriter implements LogWriter {
      * @param throwable possible cause of the message
      */
     @Override
-    public void write(String message, ShadoxyLogLevel logLevel, Throwable throwable) throws IOException {
-        File currentFile = Path.of(savePath).normalize().toFile();
-        rotateFile(currentFile);
-
+    public void write(String message, ShadoxyLogLevel logLevel, Throwable throwable) {
         try {
+            File currentFile = Path.of(savePath).normalize().toFile();
+            rotateFile(currentFile);
             writer.write(message);
             writer.newLine();
 
             if (throwable != null) {
-                stackTraceToString(throwable);
+                writer.write(stackTraceToString(throwable));
                 writer.newLine();
             }
 

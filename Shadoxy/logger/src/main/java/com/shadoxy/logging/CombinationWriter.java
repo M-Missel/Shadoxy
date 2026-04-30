@@ -20,7 +20,7 @@ public class CombinationWriter implements LogWriter {
      * @param throwable possible cause of the message
      */
     @Override
-    public void write(String message, ShadoxyLogLevel logLevel, Throwable throwable) throws IOException {
+    public void write(String message, ShadoxyLogLevel logLevel, Throwable throwable) {
         for(LogWriter writer : logWriter){
             writer.write(message, logLevel, throwable);
         }

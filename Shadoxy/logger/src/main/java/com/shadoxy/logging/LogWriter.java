@@ -16,7 +16,7 @@ public interface LogWriter {
      * @param logLevel  current log level
      * @param throwable possible cause of the message
      */
-    void write(String message, ShadoxyLogLevel logLevel, Throwable throwable) throws IOException;
+    void write(String message, ShadoxyLogLevel logLevel, Throwable throwable);
 
     /**
      * Closes the writer

@@ -55,7 +55,7 @@ public final class ShadoxyLogger {
      *
      * @param message current info message
      */
-    public void info(String message) throws IOException {
+    public void info(String message) {
         writeLog(ShadoxyLogLevel.INFO, message, null);
     }
 
@@ -64,7 +64,7 @@ public final class ShadoxyLogger {
      *
      * @param message current debug message
      */
-    public void debug(String message) throws IOException {
+    public void debug(String message) {
         writeLog(ShadoxyLogLevel.DEBUG, message, null);
     }
 
@@ -73,7 +73,7 @@ public final class ShadoxyLogger {
      *
      * @param message current warn message
      */
-    public void warn(String message) throws IOException {
+    public void warn(String message) {
         writeLog(ShadoxyLogLevel.WARN, message, null);
     }
 
@@ -82,7 +82,7 @@ public final class ShadoxyLogger {
      *
      * @param message current error message
      */
-    public void error(String message) throws IOException {
+    public void error(String message) {
         writeLog(ShadoxyLogLevel.ERROR, message, null);
     }
 
@@ -92,11 +92,11 @@ public final class ShadoxyLogger {
      * @param message   current error message
      * @param throwable cause of the error
      */
-    public void error(String message, Throwable throwable) throws IOException {
+    public void error(String message, Throwable throwable) {
         writeLog(ShadoxyLogLevel.ERROR, message, throwable);
     }
 
-    private void writeLog(ShadoxyLogLevel level, String message, Throwable throwable) throws IOException {
+    private void writeLog(ShadoxyLogLevel level, String message, Throwable throwable) {
         if (!level.isEnabledFor(logLevel)) {
             return;
         }
